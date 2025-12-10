@@ -1,5 +1,4 @@
 *.db
-*.txt
 
 # Python
 __pycache__/
