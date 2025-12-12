@@ -8,11 +8,6 @@ app.config.from_object(Config)
 db.init_app(app)
 
 
-@app.route("/")
-def index():
-    return jsonify("Hello")
-
-
 @app.before_request
 def create_table():
     db.create_all()
