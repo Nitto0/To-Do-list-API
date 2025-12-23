@@ -11,3 +11,11 @@ db.init_app(app)
 @app.before_request
 def create_table():
     db.create_all()
+
+
+@app.route("/api/tasks")
+def get_tasks():
+    tasks = []
+    return jsonify({
+        "tasks": tasks
+    })
