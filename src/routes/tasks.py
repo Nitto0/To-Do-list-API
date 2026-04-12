@@ -4,12 +4,15 @@ from src.models.task import db
 from src.models.task import Task
 from src.schemas.schemas import TaskSchema
 from pydantic import ValidationError
+from flask_migrate import Migrate
 import math
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 
 @app.before_request
