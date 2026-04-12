@@ -4,6 +4,7 @@ from src.models.task import db
 from src.models.task import Task
 from src.schemas.schemas import TaskSchema
 from pydantic import ValidationError
+import math
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -18,14 +19,29 @@ def create_table():
 
 @app.route("/api/tasks", methods=['GET'])
 def get_tasks():
-    tasks_list = []
-    for task in Task.query.all():
-        tasks_list.append({'id': task.id, 'title': task.title, 'description': task.description,
-                           'completed': task.completed, 'created_at': task.created_at,
-                           'updated_at': task.updated_at, 'priority': task.priority})
+    page = 1
+    per_page = 10
 
+    if request.json:
+        parameters = request.json
+        page = parameters['page'] if 'page' in parameters else page
+        per_page = parameters['per_page'] if 'per_page' in parameters else per_page
+
+    tasks_list = []
+    for index, task in enumerate(Task.query.all()):
+        if (index >= (page - 1) * per_page) and index < per_page * (page + 1):
+            tasks_list.append({'id': task.id, 'title': task.title, 'description': task.description,
+                               'completed': task.completed, 'created_at': task.created_at,
+                               'updated_at': task.updated_at, 'priority': task.priority})
+    total_tasks = Task.query.count()
     return jsonify({
-        "tasks": tasks_list
+        "tasks": tasks_list,
+        "pagination": {
+            'page': page,
+            'per_page': per_page,
+            'total_pages': math.ceil(total_tasks / per_page),
+            'total_items': total_tasks
+        }
     }), 200
 
 
@@ -139,3 +155,8 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return "", 204
+
+
+@app.route("/api/tasks/statistics")
+def get_statistics():
+    pass
